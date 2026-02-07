@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Výběr profesí - Kariérové poradenství</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef } = React;
+
+        const CareerCardSelector = () => {
+            const professions = [
+                { id: 1, name: 'Lékař', image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=400' },
+                { id: 2, name: 'Učitel', image: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=400' },
+                { id: 3, name: 'Programátor', image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400' },
+                { id: 4, name: 'Kuchař', image: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=400' },
+                { id: 5, name: 'Zdravotní sestra', image: 'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=400' },
+                { id: 6, name: 'Farmář', image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400' },
+                { id: 7, name: 'Architekt', image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=400' },
+                { id: 8, name: 'Hasič', image: 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=400' },
+                { id: 9, name: 'Mechanik', image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400' },
+                { id: 10, name: 'Grafik', image: 'https://images.unsplash.com/photo-1561998338-13ad7883b20f?w=400' },
+                { id: 11, name: 'Účetní', image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400' },
+                { id: 12, name: 'Prodavač', image: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=400' },
+                { id: 13, name: 'Hudebník', image: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400' },
+                { id: 14, name: 'Fotograf', image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400' },
+                { id: 15, name: 'Elektrikář', image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400' },
+                { id: 16, name: 'Pilot', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400' },
+                { id: 17, name: 'Právník', image: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=400' },
+                { id: 18, name: 'Tesař', image: 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=400' },
+                { id: 19, name: 'Veterinář', image: 'https://images.unsplash.com/photo-1548681528-6a5c45b66b42?w=400' },
+                { id: 20, name: 'Zahradník', image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400' },
+                { id: 21, name: 'Návrhář', image: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=400' },
+                { id: 22, name: 'Řidič', image: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=400' },
+                { id: 23, name: 'Kadeřník', image: 'https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?w=400' },
+                { id: 24, name: 'Stavební inženýr', image: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=400' },
+                { id: 25, name: 'Psycholog', image: 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42?w=400' },
+                { id: 26, name: 'Novinář', image: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=400' },
+                { id: 27, name: 'Bankéř', image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400' },
+                { id: 28, name: 'Sociální pracovník', image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400' },
+                { id: 29, name: 'Fitness trenér', image: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400' },
+                { id: 30, name: 'Realitní makléř', image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400' }
+            ];
+
+            const [selectedCards, setSelectedCards] = useState([]);
+            const [note, setNote] = useState('');
+            const selectionRef = useRef(null);
+
+            const handleDragStart = (e, card, fromSelected = false) => {
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('card', JSON.stringify({ ...card, fromSelected }));
+            };
+
+            const handleDragOver = (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            };
+
+            const handleDropToSelected = (e) => {
+                e.preventDefault();
+                const data = JSON.parse(e.dataTransfer.getData('card'));
+                
+                if (!data.fromSelected && !selectedCards.find(c => c.id === data.id)) {
+                    setSelectedCards([...selectedCards, data]);
+                }
+            };
+
+            const handleDropToAvailable = (e) => {
+                e.preventDefault();
+                const data = JSON.parse(e.dataTransfer.getData('card'));
+                
+                if (data.fromSelected) {
+                    setSelectedCards(selectedCards.filter(c => c.id !== data.id));
+                }
+            };
+
+            const handleReset = () => {
+                setSelectedCards([]);
+                setNote('');
+            };
+
+            const handleScreenshot = async () => {
+                if (selectionRef.current) {
+                    const canvas = await html2canvas(selectionRef.current, {
+                        backgroundColor: '#f5f5f5',
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true
+                    });
+                    
+                    const link = document.createElement('a');
+                    link.download = `vyber-profesi-${Date.now()}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                }
+            };
+
+            return (
+                <div style={{
+                    fontFamily: '"Courier New", monospace',
+                    minHeight: '100vh',
+                    backgroundColor: '#ffffff',
+                    padding: '20px'
+                }}>
+                    {/* Header */}
+                    <div style={{
+                        textAlign: 'center',
+                        marginBottom: '30px'
+                    }}>
+                        <button
+                            onClick={handleReset}
+                            style={{
+                                backgroundColor: '#5C1F33',
+                                color: '#ffffff',
+                                border: 'none',
+                                padding: '10px 20px',
+                                fontSize: '14px',
+                                fontFamily: '"Courier New", monospace',
+                                cursor: 'pointer',
+                                borderRadius: '4px'
+                            }}
+                        >
+                            RESET
+                        </button>
+                    </div>
+
+                    {/* Available Cards - Horní část */}
+                    <div
+                        onDragOver={handleDragOver}
+                        onDrop={handleDropToAvailable}
+                        style={{
+                            backgroundColor: '#e8e8e8',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            marginBottom: '30px',
+                            minHeight: '400px'
+                        }}
+                    >
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                            gap: '15px'
+                        }}>
+                            {professions.filter(p => !selectedCards.find(s => s.id === p.id)).map(profession => (
+                                <div
+                                    key={profession.id}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, profession, false)}
+                                    style={{
+                                        cursor: 'grab',
+                                        backgroundColor: '#ffffff',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                        transition: 'transform 0.2s',
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                >
+                                    <img
+                                        src={profession.image}
+                                        alt={profession.name}
+                                        style={{
+                                            width: '100%',
+                                            height: '120px',
+                                            objectFit: 'cover',
+                                            display: 'block'
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Selected Cards - Dolní část */}
+                    <div
+                        ref={selectionRef}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDropToSelected}
+                        style={{
+                            backgroundColor: '#f5f5f5',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            minHeight: '300px',
+                            border: '2px dashed #5C1F33',
+                            position: 'relative'
+                        }}
+                    >
+                        
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                            gap: '15px',
+                            marginBottom: '20px'
+                        }}>
+                            {selectedCards.map(card => (
+                                <div
+                                    key={card.id}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, card, true)}
+                                    style={{
+                                        cursor: 'grab',
+                                        backgroundColor: '#ffffff',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                        transition: 'transform 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                >
+                                    <img
+                                        src={card.image}
+                                        alt={card.name}
+                                        style={{
+                                            width: '100%',
+                                            height: '120px',
+                                            objectFit: 'cover',
+                                            display: 'block'
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Poznámka a Screenshot */}
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-end',
+                            gap: '20px',
+                            marginTop: '20px'
+                        }}>
+                            <button
+                                onClick={handleScreenshot}
+                                style={{
+                                    backgroundColor: '#5C1F33',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    padding: '12px 24px',
+                                    fontSize: '14px',
+                                    fontFamily: '"Courier New", monospace',
+                                    cursor: 'pointer',
+                                    borderRadius: '4px'
+                                }}
+                            >
+                                SCREENSHOT
+                            </button>
+                            
+                            <div style={{ flex: '0 0 300px' }}>
+                                <label style={{
+                                    color: '#5C1F33',
+                                    fontSize: '12px',
+                                    display: 'block',
+                                    marginBottom: '5px'
+                                }}>
+                                    Poznámka:
+                                </label>
+                                <textarea
+                                    value={note}
+                                    onChange={(e) => setNote(e.target.value)}
+                                    placeholder="Volitelná poznámka..."
+                                    style={{
+                                        width: '100%',
+                                        minHeight: '60px',
+                                        padding: '8px',
+                                        fontFamily: '"Courier New", monospace',
+                                        fontSize: '12px',
+                                        border: '1px solid #5C1F33',
+                                        borderRadius: '4px',
+                                        resize: 'vertical',
+                                        backgroundColor: '#ffffff'
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<CareerCardSelector />, document.getElementById('root'));
+    </script>
+</body>
+</html>
